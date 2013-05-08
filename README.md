@@ -1,7 +1,7 @@
 UltraHardcore
 -------------
 
-UltraHardcore is a plugin for [CanaryRecode](http://canaryrecode.net).
+UltraHardcore is a plugin for [CanaryRecode](http://canarymod.net).
 
 This plugin allows you to play UltraHardcore on your CanaryRecode server. UltraHardcore is a special gamemode for Minecraft that changes many things, including:
 
