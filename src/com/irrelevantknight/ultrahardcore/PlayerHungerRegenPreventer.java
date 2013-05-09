@@ -50,7 +50,6 @@ public class PlayerHungerRegenPreventer implements PluginListener
 		int newHealth = hook.getNewValue();
 		int oldHealth = hook.getOldValue();
 		
-		//Not working properly at the moment
 		if (newHealth > oldHealth)
 		{
 			if (newHealth > getMaxAllowedHealth(hook.getPlayer()))
