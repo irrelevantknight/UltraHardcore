@@ -15,7 +15,7 @@ public class UltraHardcore extends Plugin
 	@Override
 	public boolean enable()
 	{
-		Canary.hooks().registerListener(new PlayerHealthRegenListener(this), this);
+		Canary.hooks().registerListener(new PlayerHungerRegenPreventer(this), this);
 		getLogman().logInfo("Enabling " + getName() + " version " + getVersion() + " by " + getAuthor());
 		return true;
 	}

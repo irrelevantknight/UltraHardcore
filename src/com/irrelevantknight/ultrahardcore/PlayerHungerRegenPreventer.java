@@ -6,12 +6,12 @@ import net.canarymod.hook.entity.PotionEffectAppliedHook;
 import net.canarymod.hook.player.HealthChangeHook;
 import net.canarymod.plugin.PluginListener;
 
-public class PlayerHealthRegenListener implements PluginListener
+public class PlayerHungerRegenPreventer implements PluginListener
 {
 	
 	private UltraHardcore plugin;
 	
-	public PlayerHealthRegenListener(UltraHardcore instance)
+	public PlayerHungerRegenPreventer(UltraHardcore instance)
 	{
 		plugin = instance;
 	}
