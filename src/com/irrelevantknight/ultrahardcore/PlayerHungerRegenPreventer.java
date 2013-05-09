@@ -1,12 +1,9 @@
 package com.irrelevantknight.ultrahardcore;
 
-import java.util.HashMap;
-
 import net.canarymod.api.entity.living.humanoid.Player;
 import net.canarymod.api.potion.PotionEffect;
+import net.canarymod.api.potion.PotionEffectType;
 import net.canarymod.hook.HookHandler;
-import net.canarymod.hook.entity.PotionEffectAppliedHook;
-import net.canarymod.hook.player.ConnectionHook;
 import net.canarymod.hook.player.HealthChangeHook;
 import net.canarymod.plugin.PluginListener;
 
@@ -14,34 +11,22 @@ public class PlayerHungerRegenPreventer implements PluginListener
 {
 	
 	private UltraHardcore plugin;
-	HashMap<String, Integer> maxAllowedHealth = new HashMap<String, Integer>();
 	
 	public PlayerHungerRegenPreventer(UltraHardcore instance)
 	{
 		plugin = instance;
 	}
 	
-	private void setMaxAllowedHealth(Player p, int health)
+	boolean hasHealthOrRegen(Player p)
 	{
-		if (health > 20)
+		for (PotionEffect e : p.getAllActivePotionEffects())
 		{
-			maxAllowedHealth.put(p.getName(), 20);
+			if ((e.getPotionID() == PotionEffectType.REGENERATION.getID()) | e.getPotionID() == PotionEffectType.HEAL.getID())
+			{
+				return true;
+			}
 		}
-		else
-		{
-			maxAllowedHealth.put(p.getName(), health);
-		}
-	}
-	private int getMaxAllowedHealth(Player p)
-	{
-		return maxAllowedHealth.get(p.getName());
-	}
-	
-	@HookHandler
-	public void onPlayerLogin(ConnectionHook hook)
-	{
-		setMaxAllowedHealth(hook.getPlayer(),
-				hook.getPlayer().getHealth());
+		return false;
 	}
 
 	//Prevent player from regenerating due to having enough hunger
@@ -49,53 +34,10 @@ public class PlayerHungerRegenPreventer implements PluginListener
 	public void onPlayerHealthChange(HealthChangeHook hook)
 	{
 		int newHealth = hook.getNewValue();
-		int oldHealth = hook.getOldValue();
-		
-		if (newHealth > oldHealth)
+		int oldHealth = hook.getOldValue();	
+		if ((oldHealth < newHealth) && !(hasHealthOrRegen(hook.getPlayer())))
 		{
-			if (newHealth > getMaxAllowedHealth(hook.getPlayer()))
-			{
-				hook.setCanceled();
-			}
-		}
-		else if (newHealth < oldHealth)
-		{
-			int healthDifference = oldHealth - newHealth;
-			int regenHeartsToAdd = 0;
-			for (PotionEffect e : hook.getPlayer().getAllActivePotionEffects())
-			{
-				if (e.getPotionID() == 10)
-				{
-					int potionDuration = e.getDuration();
-					int potionAmplifier = e.getAmplifier();
-					int delayBetweenHealing = (int) (25 * Math.pow(0.5, potionAmplifier));
-					regenHeartsToAdd = potionDuration / delayBetweenHealing;
-					break;
-				}
-			}
-			setMaxAllowedHealth(hook.getPlayer(),
-					getMaxAllowedHealth(hook.getPlayer()) - healthDifference + regenHeartsToAdd);
+			hook.setCanceled();
 		}
 	}
-	
-	@HookHandler
-	public void onPotionEffectApplied(PotionEffectAppliedHook hook)
-	{
-		if (hook.getEntity() instanceof Player)
-		{
-			//If the potion is a regeneration potion
-			if (hook.getPotionEffect().getPotionID() == 10)
-			{
-				//Calculate the amount of hearts to add
-				int potionDuration = hook.getPotionEffect().getDuration();
-				int potionAmplifier = hook.getPotionEffect().getAmplifier();
-				int delayBetweenHealing = (int) (25 * Math.pow(0.5, potionAmplifier));
-				int heartsToAdd = potionDuration / delayBetweenHealing;
-				setMaxAllowedHealth(hook.getEntity().getPlayer(),
-						getMaxAllowedHealth(hook.getEntity().getPlayer()) + heartsToAdd);
-			}
-		}
-	}
-	
-	
 }
