@@ -3,6 +3,7 @@ package com.irrelevantknight.ultrahardcore;
 import java.util.HashMap;
 
 import net.canarymod.api.entity.living.humanoid.Player;
+import net.canarymod.api.potion.PotionEffect;
 import net.canarymod.hook.HookHandler;
 import net.canarymod.hook.entity.PotionEffectAppliedHook;
 import net.canarymod.hook.player.ConnectionHook;
@@ -60,8 +61,20 @@ public class PlayerHungerRegenPreventer implements PluginListener
 		else if (newHealth < oldHealth)
 		{
 			int healthDifference = oldHealth - newHealth;
+			int regenHeartsToAdd = 0;
+			for (PotionEffect e : hook.getPlayer().getAllActivePotionEffects())
+			{
+				if (e.getPotionID() == 10)
+				{
+					int potionDuration = e.getDuration();
+					int potionAmplifier = e.getAmplifier();
+					int delayBetweenHealing = (int) (25 * Math.pow(0.5, potionAmplifier));
+					regenHeartsToAdd = potionDuration / delayBetweenHealing;
+					break;
+				}
+			}
 			setMaxAllowedHealth(hook.getPlayer(),
-					getMaxAllowedHealth(hook.getPlayer()) - healthDifference);
+					getMaxAllowedHealth(hook.getPlayer()) - healthDifference + regenHeartsToAdd);
 		}
 	}
 	
