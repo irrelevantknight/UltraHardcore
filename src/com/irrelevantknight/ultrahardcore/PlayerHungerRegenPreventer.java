@@ -14,15 +14,9 @@ import net.canarymod.plugin.PluginListener;
 
 public class PlayerHungerRegenPreventer implements PluginListener
 {
-	private UltraHardcore plugin;
 	HashMap<String, Integer> regenPotionPoints = new HashMap<String, Integer>();
 	HashMap<String, Boolean> hadHealthPotion = new HashMap<String, Boolean>();
 	HashMap<String, Boolean> isDead = new HashMap<String, Boolean>();
-	
-	public PlayerHungerRegenPreventer(UltraHardcore instance)
-	{
-		plugin = instance;
-	}
 	
 	//Prevent player from regenerating due to hunger
 	@HookHandler
