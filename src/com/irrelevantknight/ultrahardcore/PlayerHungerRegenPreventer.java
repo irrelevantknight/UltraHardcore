@@ -6,13 +6,15 @@ import net.canarymod.api.entity.living.humanoid.Player;
 import net.canarymod.api.potion.PotionEffectType;
 import net.canarymod.hook.HookHandler;
 import net.canarymod.hook.entity.PotionEffectAppliedHook;
+import net.canarymod.hook.entity.PotionEffectFinishHook;
 import net.canarymod.hook.player.HealthChangeHook;
 import net.canarymod.plugin.PluginListener;
 
 public class PlayerHungerRegenPreventer implements PluginListener
 {
 	private UltraHardcore plugin;
-	HashMap<String, Integer> canRegen = new HashMap<String, Integer>();
+	HashMap<String, Integer> regenPotionPoints = new HashMap<String, Integer>();
+	HashMap<String, Boolean> hadHealthPotion = new HashMap<String, Boolean>();
 	
 	public PlayerHungerRegenPreventer(UltraHardcore instance)
 	{
@@ -27,17 +29,25 @@ public class PlayerHungerRegenPreventer implements PluginListener
 		int newHealth = hook.getNewValue();
 		if (oldHealth < newHealth)
 		{
-			if (!(canRegen.containsKey(hook.getPlayer().getName())))
+			if (!(regenPotionPoints.containsKey(hook.getPlayer().getName())))
 			{
 				setRegenTimes(hook.getPlayer(), 0);
 			}
-			if (getRegenTimes(hook.getPlayer()) < 1)
+			if (!(hadHealthPotion.containsKey(hook.getPlayer().getName())))
 			{
-				hook.setCanceled();
+				unsetHadHealthPotion(hook.getPlayer());
+			}
+			if (getHadHealthPotion(hook.getPlayer()))
+			{
+				unsetHadHealthPotion(hook.getPlayer());
+			}
+			else if (getRegenTimes(hook.getPlayer()) > 1)
+			{
+				removeRegenTimes(hook.getPlayer(), 1);
 			}
 			else
 			{
-				removeRegenTimes(hook.getPlayer(), 1);
+				hook.setCanceled();
 			}
 		}
 	}
@@ -51,7 +61,7 @@ public class PlayerHungerRegenPreventer implements PluginListener
 			plugin.getLogman().logInfo("POTION APPLIED");
 			if (hook.getPotionEffect().getPotionID() == PotionEffectType.HEAL.getID())
 			{
-				addRegenTimes(hook.getEntity().getPlayer(), 1);
+				setHadHealthPotion(hook.getEntity().getPlayer());
 			}
 			else if (hook.getPotionEffect().getPotionID() == PotionEffectType.REGENERATION.getID())
 			{
@@ -64,21 +74,45 @@ public class PlayerHungerRegenPreventer implements PluginListener
 		}
 	}
 	
+	@HookHandler
+	public void onPotionEffectFinish(PotionEffectFinishHook hook)
+	{
+		if (hook.getEntity() instanceof Player)
+		{
+			if (hook.getPotionEffect().getPotionID() == PotionEffectType.REGENERATION.getID())
+			{
+				setRegenTimes(hook.getEntity().getPlayer(), 0);
+			}
+		}
+	}
+	
 	//Some methods
 	void addRegenTimes(Player p, int times)
 	{
-		canRegen.put(p.getName(), canRegen.get(p.getName()) + times);
+		regenPotionPoints.put(p.getName(), regenPotionPoints.get(p.getName()) + times);
 	}
 	void removeRegenTimes(Player p, int times)
 	{
-		canRegen.put(p.getName(), canRegen.get(p.getName()) - times);
+		regenPotionPoints.put(p.getName(), regenPotionPoints.get(p.getName()) - times);
 	}
 	void setRegenTimes(Player p, int times)
 	{
-		canRegen.put(p.getName(), times);
+		regenPotionPoints.put(p.getName(), times);
 	}
 	int getRegenTimes(Player p)
 	{
-		return canRegen.get(p.getName());
+		return regenPotionPoints.get(p.getName());
+	}
+	void setHadHealthPotion(Player p)
+	{
+		hadHealthPotion.put(p.getName(), true);
+	}
+	void unsetHadHealthPotion(Player p)
+	{
+		hadHealthPotion.put(p.getName(), false);
+	}
+	boolean getHadHealthPotion(Player p)
+	{
+		return hadHealthPotion.get(p.getName());
 	}
 }
