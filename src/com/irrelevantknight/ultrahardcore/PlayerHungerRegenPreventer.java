@@ -52,7 +52,6 @@ public class PlayerHungerRegenPreventer implements PluginListener
 		}
 	}
 	
-	//Set a healthPotionUsed to true when a health potion is used
 	@HookHandler
 	public void onPotionEffectApplied(PotionEffectAppliedHook hook)
 	{
