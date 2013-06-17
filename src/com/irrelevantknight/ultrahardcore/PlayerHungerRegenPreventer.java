@@ -30,6 +30,9 @@ public class PlayerHungerRegenPreventer implements PluginListener {
 			if (!(hadHealthPotion.containsKey(hook.getPlayer().getName()))) {
 				setHadHealthPotion(hook.getPlayer(), false);
 			}
+			if (!(isDead.containsKey(hook.getPlayer().getName()))) {
+				setIsDead(hook.getPlayer(), false);
+			}
 			if (getIsDead(hook.getPlayer())) {
 				setIsDead(hook.getPlayer(), false);
 			}
